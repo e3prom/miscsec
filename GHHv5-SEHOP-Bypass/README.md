@@ -32,8 +32,9 @@ of '1' disables it. You may want to disable SEHOP to debug the exception handler
 on a debugger such as Immunity Debugger.
 
 ## PoC Binaries
-The PE/COFF executable and the accompanying .dll have been compiled with the /GS
-flag but /SafeSEH, /DYNAMICBASE and /NXCompat disabled.
+The PE/COFF executable and the accompanying .dll have both been compiled with the
+/GS flag to add security cookies onto the stack and with /DYNAMICBASE and
+/NXCompat disabled. The main executable has been compiled with /SafeSEH on.
 
 Here's the SHA256 checksums for the executable and the DLL:
 ```
@@ -53,5 +54,11 @@ the recommended compilation flags.
   execution.
 * It may be necessary to disable Data Execution Prevention (DEP) by adding an
   exception for fool.exe. In fact, to successfully bypass SEHOP, the NSEH
-  pointer's last byte should be equal to 0x74 (jmp opcode). The instructions is
-  residing on the stack, on a memory page not marked for execution.
+  pointer's last byte should be equal to 0x74 (jmp opcode). These instructions
+  including the shellcode reside on the stack, on memory pages not marked for
+  executions.
+* You can automate the exploitation of fool.exe on Windows 10 using a simple
+  for loop:
+  ```
+  > for /L %I in (1,1,256) DO fool.exe attack.bin || echo exploit attempt %I failed!
+  ```
