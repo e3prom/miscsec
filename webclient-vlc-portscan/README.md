@@ -1,32 +1,31 @@
 ## Summary
 I started a little experiment after finding out that VLC for Windows when
-referencing resources with the 'file://' URI schema in playlist, is leveraging
-the operating-system's WebClient service. Under some particular conditions, the
-latter try to query files and directories properties via the WebDAV extension.
+referencing resources with the ```file://``` URI schema in playlist, is
+leveraging the operating-system's WebClient service. Under some particular
+conditions, the latter try to query files and directories properties via the
+Webclient's WebDAV extension.
 
 When a SMB share cannot be accessed (or doesn't exists), the WebDAV extension
-is trigged, targeting the referenced host. The WebDAV server could redirect the
-client using HTTP replies with the '301 Moved' method. The victim's client seemto
- blindly redirect to the location as pointed by the 'Location:' header field's
- value. The redirects could be leveraged to perform CSRF attacks and even basic
-  TCP port scan (see Proof of Concept below).
+is trigged, targeting the referenced host. The WebDAV server could later
+redirect the client using the '301 Moved' HTTP method. The victim's client
+seems to blindly redirect to (and honor) the location specified by the
+'Location:' header field's value. The redirects could be leveraged to perform
+CSRF attacks and even basic TCP port scan (see Proof of Concept below).
 
 ## Proof of Concept (Experiment)
-I wrote a quick and dirty [PoC](nasty-webdav.py) simulating a WebDAV server.
-The server can handle multiples connections, is listening by default on tcp/80
-and can redirect the victim to a range of TCP ports of your choosing. This PoC
-could be used to abuse the WebDAV client in various way, and can also lead the
-victim in performing a basic TCP scan. By observing returns from the client,
-you can infer which ports is filtered outbound.
+I wrote a quick and dirty [PoC](nasty-webdav-server.py) simulating a WebDAV
+server. The server can handle multiples connections, is listening by default on
+tcp/80 and can redirect the victims to a range of TCP ports of your choosing.
+This PoC could be used to abuse the WebDAV client in various ways, and can also
+lead the victims in performing a basic TCP scan. By observing the connections
+attempts, you can infer which ports is filtered outbound and which are not.
 
-You can find a few additional files to demonstrate the issue with VLC. At this
-time of witting, it does affect all version of the software, including the
-latest development version. By opening the "malicious" playlist, the victim's
-will query the WebDAV server (don't forget to point the resource to your IP
-address), and it will redirect the client to target you specify in the
-'self.target' variable (see below for full instructions).
+You can find on this repository, a few additional files to demonstrate the
+issue with VLC. At this time of writing, it does affect all version of the
+software, including the latest development version. By opening the "malicious"
+playlist, the victim's will query the WebDAV server and will get redirected.
 
-Step to reproduce (VLC):
+Step to reproduce with VLC:
  1. Edit [nasty-webdav-server.py](nasty-webdav-server.py):
     * ```self.target``` To point to your target IP address, where to observe
        connections attempts from the victim(s) (could point to your WebDAV
