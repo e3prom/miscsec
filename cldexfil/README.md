@@ -7,7 +7,7 @@ queries on an interface of your choosing, decode and print them on your screen.
 
 At this time of writing [cldexfil.py](cldexfil.py) is relatively limited
 feature-wise, but as new client-less exfiltration methods (see Exfiltration
-methods below) are found and are refined, more features will be added.
+methods below) will be experimented, more features will be added.
 
 
 ## Why?
@@ -58,8 +58,8 @@ therefore the last created hostname will probably not be aligned on a 63 bytes
 boundary and it will results in a malformed DNS query.
 
 In presence of command injection vulnerabilities you frequently have a list of
-bad characters you cannot inject, such as the semi-colon ';' or the back-slash
-'\\', the above example is of no use in such cases, and alternative characters
+bad characters you cannot inject, such as the semi-colon `;` or the back-slash
+`\\`, the above example is of no use in such cases, and alternative characters
 or command expressions may be needed. Also keep in mind that most methods
 described here, do not provide data confidentiality and integrity.
 
@@ -74,7 +74,7 @@ to implementations, and between shells versions.
 
 ## Practical examples
 `cldexfil` can be used in a lot of exploitation scenarios. This project's
-[wiki](https://github.com/e3prom/cldexfil/wiki) includes a few practical
+[wiki](https://github.com/e3prom/miscsec/wiki/cldexfil) includes a few practical
 examples of *client-less* data exfiltration over DNS through the exploitation of
 well known vulnerabilities such as RCEs.
 
