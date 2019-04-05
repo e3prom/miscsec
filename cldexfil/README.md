@@ -59,7 +59,7 @@ boundary and it will results in a malformed DNS query.
 
 In presence of command injection vulnerabilities you frequently have a list of
 bad characters you cannot inject, such as the semi-colon `;` or the back-slash
-`\\`, the above example is of no use in such cases, and alternative characters
+`\`, the above example is of no use in such cases, and alternative characters
 or command expressions may be needed. Also keep in mind that most methods
 described here, do not provide data confidentiality and integrity.
 
